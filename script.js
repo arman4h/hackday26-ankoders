@@ -1,29 +1,40 @@
-// Student request types mapping
+// Student request types mapping with priority (1 = highest/urgent, 6 = lowest)
 const studentRequests = {
-    restroom: {
-        icon: "🚻",
-        message: "Restroom",
-        category: "request" // Requires accept/reject
+    urgent: {
+        icon: "🚨",
+        message: "Urgent",
+        category: "request", // Requires accept/reject
+        priority: 1 // Highest priority - Red
     },
-    notFeelingWell: {
+    feelingSick: {
         icon: "🤒",
-        message: "Not feeling well",
-        category: "request" // Requires accept/reject
+        message: "Feeling Sick",
+        category: "request", // Requires accept/reject
+        priority: 2 // High priority - Orange
+    },
+    requestToStepOut: {
+        icon: "🚪",
+        message: "Request to Step Out",
+        category: "request", // Requires accept/reject
+        priority: 3 // Medium-high priority - Yellow/Orange
     },
     didntUnderstand: {
         icon: "❓",
-        message: "Didn't understand",
-        category: "status" // Requires seen acknowledgment
+        message: "I didn't Understand",
+        category: "status", // Requires seen acknowledgment
+        priority: 4 // Medium priority - Blue
     },
-    understood: {
+    taskCompleted: {
         icon: "✅",
-        message: "Understood!",
-        category: "status" // Requires seen acknowledgment
+        message: "Task Completed",
+        category: "status", // Requires seen acknowledgment
+        priority: 5 // Low-medium priority - Green
     },
-    needHelp: {
-        icon: "🆘",
-        message: "I need help",
-        category: "request" // Requires accept/reject
+    understand: {
+        icon: "👍",
+        message: "I understand",
+        category: "status", // Requires seen acknowledgment
+        priority: 6 // Lowest priority - Light Green
     }
 };
 
@@ -41,6 +52,19 @@ function getCurrentTime() {
 // Get full timestamp for sorting
 function getTimestamp() {
     return new Date().getTime();
+}
+
+// Function to get priority class name
+function getPriorityClass(priority) {
+    const priorityMap = {
+        1: 'priority-urgent',      // Red
+        2: 'priority-high',         // Orange
+        3: 'priority-medium-high', // Yellow/Orange
+        4: 'priority-medium',      // Blue
+        5: 'priority-low-medium',  // Green
+        6: 'priority-low'          // Light Green
+    };
+    return priorityMap[priority] || 'priority-medium';
 }
 
 // Initialize landing page
@@ -108,11 +132,29 @@ function initStudentPage() {
     const confirmationMessage = document.getElementById('confirmation-message');
     let showLabels = labelToggle.checked;
 
-    // Create buttons for each request type
-    Object.keys(studentRequests).forEach(type => {
+    // Function to get priority class name
+    function getPriorityClass(priority) {
+        const priorityMap = {
+            1: 'priority-urgent',      // Red
+            2: 'priority-high',         // Orange
+            3: 'priority-medium-high', // Yellow/Orange
+            4: 'priority-medium',      // Blue
+            5: 'priority-low-medium',  // Green
+            6: 'priority-low'          // Light Green
+        };
+        return priorityMap[priority] || 'priority-medium';
+    }
+
+    // Create buttons for each request type, sorted by priority
+    const sortedRequestTypes = Object.keys(studentRequests).sort((a, b) => {
+        return (studentRequests[a].priority || 4) - (studentRequests[b].priority || 4);
+    });
+
+    sortedRequestTypes.forEach(type => {
         const request = studentRequests[type];
         const button = document.createElement('button');
-        button.className = 'student-btn';
+        const priorityClass = getPriorityClass(request.priority);
+        button.className = `student-btn ${priorityClass}`;
         button.setAttribute('data-type', type);
         
         const iconSpan = document.createElement('span');
@@ -143,6 +185,7 @@ function initStudentPage() {
                 icon: request.icon,
                 message: request.message,
                 category: request.category,
+                priority: request.priority, // Priority level (1-6)
                 status: 'pending', // pending, seen, accepted, rejected
                 time: getCurrentTime(),
                 timestamp: getTimestamp()
@@ -199,8 +242,15 @@ function initStudentPage() {
         // Filter requests for current student
         const studentRequests = allRequests.filter(req => req.studentName === studentName);
         
-        // Sort by timestamp (newest first)
-        studentRequests.sort((a, b) => b.timestamp - a.timestamp);
+        // Sort by priority first (lower number = higher priority), then by timestamp (newest first)
+        studentRequests.sort((a, b) => {
+            const priorityA = a.priority || 4; // Default to medium if missing
+            const priorityB = b.priority || 4;
+            if (priorityA !== priorityB) {
+                return priorityA - priorityB; // Lower priority number = higher priority
+            }
+            return b.timestamp - a.timestamp; // Newest first for same priority
+        });
         
         if (studentRequests.length === 0) {
             requestList.innerHTML = '<div class="placeholder">No requests yet</div>';
@@ -219,8 +269,10 @@ function initStudentPage() {
                 statusBadge = '<span class="status-badge status-pending">Pending...</span>';
             }
             
+            const priorityClass = getPriorityClass(req.priority || 4);
+            
             return `
-                <div class="request-item">
+                <div class="request-item ${priorityClass}">
                     <div class="request-item-info">
                         <span class="request-item-icon">${req.icon}</span>
                         <div class="request-item-text">
@@ -229,10 +281,38 @@ function initStudentPage() {
                             ${statusBadge}
                         </div>
                     </div>
-                    <span class="request-item-time">${req.time}</span>
+                    <div class="request-item-actions">
+                        <button class="raise-down-btn" data-request-id="${req.id}" title="Remove this request">
+                            Raise Down
+                        </button>
+                        <span class="request-item-time">${req.time}</span>
+                    </div>
                 </div>
             `;
         }).join('');
+    }
+
+    // Function to remove a request
+    function removeRequest(requestId) {
+        const allRequests = JSON.parse(localStorage.getItem('allStudentRequests') || '[]');
+        const filteredRequests = allRequests.filter(req => String(req.id) !== String(requestId));
+        localStorage.setItem('allStudentRequests', JSON.stringify(filteredRequests));
+        updateStudentRequestList();
+    }
+
+    // Event delegation for raise down buttons
+    if (requestList) {
+        requestList.addEventListener('click', (e) => {
+            const button = e.target.closest('.raise-down-btn');
+            if (button) {
+                const requestId = button.getAttribute('data-request-id');
+                if (requestId) {
+                    if (confirm('Are you sure you want to remove this request?')) {
+                        removeRequest(requestId);
+                    }
+                }
+            }
+        });
     }
 
     // Initial load of request list
@@ -298,6 +378,10 @@ function initTeacherPage() {
         }
     });
 
+    function requiresSeenOnly(req) {
+        return req.category === 'status' || req.type === 'urgent' || req.type === 'feelingSick';
+    }
+
     function updateDisplay() {
         const allRequests = JSON.parse(localStorage.getItem('allStudentRequests') || '[]');
         
@@ -310,15 +394,23 @@ function initTeacherPage() {
             return;
         }
         
-        // Sort by timestamp (newest first)
-        const sortedRequests = [...allRequests].sort((a, b) => b.timestamp - a.timestamp);
+        // Sort by priority first (lower number = higher priority), then by timestamp (newest first)
+        const sortedRequests = [...allRequests].sort((a, b) => {
+            const priorityA = a.priority || 4; // Default to medium if missing
+            const priorityB = b.priority || 4;
+            if (priorityA !== priorityB) {
+                return priorityA - priorityB; // Lower priority number = higher priority
+            }
+            return b.timestamp - a.timestamp; // Newest first for same priority
+        });
         
         allRequestsContainer.innerHTML = sortedRequests.map(req => {
+            const priorityClass = getPriorityClass(req.priority || 4);
             let actionButtons = '';
             
             if (req.status === 'pending') {
-                if (req.category === 'status') {
-                    // Status type - show tick mark button
+                if (requiresSeenOnly(req)) {
+                    // Status or special types (urgent, feeling sick) - show tick mark button
                     actionButtons = `
                         <button class="action-btn seen-btn" data-request-id="${req.id}" data-action="seen">
                             <span class="btn-icon">✓</span>
@@ -326,7 +418,7 @@ function initTeacherPage() {
                         </button>
                     `;
                 } else {
-                    // Request type - show accept/reject buttons
+                    // Other request types - show accept/reject buttons
                     actionButtons = `
                         <button class="action-btn accept-btn" data-request-id="${req.id}" data-action="accept">
                             <span class="btn-icon">✓</span>
@@ -356,7 +448,7 @@ function initTeacherPage() {
             }
             
             return `
-                <div class="teacher-request-item">
+                <div class="teacher-request-item ${priorityClass}">
                     <div class="teacher-request-icon">${req.icon}</div>
                     <div class="teacher-request-content">
                         <div class="teacher-request-name">${req.studentName}</div>

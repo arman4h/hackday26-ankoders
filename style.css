@@ -400,6 +400,67 @@ body {
     background-color: #e3f2fd;
 }
 
+/* Priority-based color coding for student buttons */
+.student-btn.priority-urgent {
+    border-color: #f44336;
+    background-color: #ffebee;
+}
+
+.student-btn.priority-urgent:hover {
+    border-color: #d32f2f;
+    background-color: #ffcdd2;
+}
+
+.student-btn.priority-high {
+    border-color: #ff9800;
+    background-color: #fff3e0;
+}
+
+.student-btn.priority-high:hover {
+    border-color: #f57c00;
+    background-color: #ffe0b2;
+}
+
+.student-btn.priority-medium-high {
+    border-color: #ffc107;
+    background-color: #fffde7;
+}
+
+.student-btn.priority-medium-high:hover {
+    border-color: #ffa000;
+    background-color: #fff9c4;
+}
+
+.student-btn.priority-medium {
+    border-color: #2196F3;
+    background-color: #e3f2fd;
+}
+
+.student-btn.priority-medium:hover {
+    border-color: #1976d2;
+    background-color: #bbdefb;
+}
+
+.student-btn.priority-low-medium {
+    border-color: #4CAF50;
+    background-color: #e8f5e9;
+}
+
+.student-btn.priority-low-medium:hover {
+    border-color: #388e3c;
+    background-color: #c8e6c9;
+}
+
+.student-btn.priority-low {
+    border-color: #8bc34a;
+    background-color: #f1f8e9;
+}
+
+.student-btn.priority-low:hover {
+    border-color: #689f38;
+    background-color: #dcedc8;
+}
+
 .student-btn .icon {
     font-size: 36px;
 }
@@ -447,6 +508,37 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
+/* Priority-based color coding for request items */
+.request-item.priority-urgent {
+    border-left-color: #f44336;
+    background-color: #ffebee;
+}
+
+.request-item.priority-high {
+    border-left-color: #ff9800;
+    background-color: #fff3e0;
+}
+
+.request-item.priority-medium-high {
+    border-left-color: #ffc107;
+    background-color: #fffde7;
+}
+
+.request-item.priority-medium {
+    border-left-color: #2196F3;
+    background-color: #e3f2fd;
+}
+
+.request-item.priority-low-medium {
+    border-left-color: #4CAF50;
+    background-color: #e8f5e9;
+}
+
+.request-item.priority-low {
+    border-left-color: #8bc34a;
+    background-color: #f1f8e9;
+}
+
 .request-item-info {
     display: flex;
     align-items: center;
@@ -474,9 +566,39 @@ body {
     font-size: 14px;
 }
 
+.request-item-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
 .request-item-time {
     color: #999;
     font-size: 13px;
+}
+
+.raise-down-btn {
+    padding: 6px 12px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.raise-down-btn:hover {
+    background-color: #d32f2f;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(244, 67, 54, 0.3);
+}
+
+.raise-down-btn:active {
+    transform: translateY(0);
 }
 
 .confirmation-message {
@@ -562,6 +684,7 @@ body {
     background-color: white;
     padding: 20px 24px;
     border-radius: 12px;
+    border-left: 4px solid #4a90e2;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     display: flex;
     align-items: center;
@@ -571,6 +694,37 @@ body {
 
 .teacher-request-item:hover {
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Priority-based color coding for teacher request items */
+.teacher-request-item.priority-urgent {
+    border-left-color: #f44336;
+    background-color: #ffebee;
+}
+
+.teacher-request-item.priority-high {
+    border-left-color: #ff9800;
+    background-color: #fff3e0;
+}
+
+.teacher-request-item.priority-medium-high {
+    border-left-color: #ffc107;
+    background-color: #fffde7;
+}
+
+.teacher-request-item.priority-medium {
+    border-left-color: #2196F3;
+    background-color: #e3f2fd;
+}
+
+.teacher-request-item.priority-low-medium {
+    border-left-color: #4CAF50;
+    background-color: #e8f5e9;
+}
+
+.teacher-request-item.priority-low {
+    border-left-color: #8bc34a;
+    background-color: #f1f8e9;
 }
 
 .teacher-request-icon {
