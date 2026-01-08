@@ -2,23 +2,28 @@
 const studentRequests = {
     restroom: {
         icon: "🚻",
-        message: "Restroom"
+        message: "Restroom",
+        category: "request" // Requires accept/reject
     },
     notFeelingWell: {
         icon: "🤒",
-        message: "Not feeling well"
+        message: "Not feeling well",
+        category: "request" // Requires accept/reject
     },
     didntUnderstand: {
         icon: "❓",
-        message: "Didn't understand"
+        message: "Didn't understand",
+        category: "status" // Requires seen acknowledgment
     },
     understood: {
         icon: "✅",
-        message: "Understood!"
+        message: "Understood!",
+        category: "status" // Requires seen acknowledgment
     },
     needHelp: {
         icon: "🆘",
-        message: "I need help"
+        message: "I need help",
+        category: "request" // Requires accept/reject
     }
 };
 
@@ -132,10 +137,13 @@ function initStudentPage() {
             button.classList.add('active');
             
             const requestData = {
+                id: String(getTimestamp() + Math.random()), // Unique ID for each request (as string)
                 studentName: studentName,
                 type: type,
                 icon: request.icon,
                 message: request.message,
+                category: request.category,
+                status: 'pending', // pending, seen, accepted, rejected
                 time: getCurrentTime(),
                 timestamp: getTimestamp()
             };
@@ -199,27 +207,96 @@ function initStudentPage() {
             return;
         }
         
-        requestList.innerHTML = studentRequests.map(req => `
-            <div class="request-item">
-                <div class="request-item-info">
-                    <span class="request-item-icon">${req.icon}</span>
-                    <div class="request-item-text">
-                        <span class="request-item-name">${req.studentName}</span>
-                        <span class="request-item-message">${req.message}</span>
+        requestList.innerHTML = studentRequests.map(req => {
+            let statusBadge = '';
+            if (req.status === 'seen') {
+                statusBadge = '<span class="status-badge status-seen">✓ Teacher seen your message</span>';
+            } else if (req.status === 'accepted') {
+                statusBadge = '<span class="status-badge status-accepted">✓ Accepted</span>';
+            } else if (req.status === 'rejected') {
+                statusBadge = '<span class="status-badge status-rejected">✗ Rejected</span>';
+            } else {
+                statusBadge = '<span class="status-badge status-pending">Pending...</span>';
+            }
+            
+            return `
+                <div class="request-item">
+                    <div class="request-item-info">
+                        <span class="request-item-icon">${req.icon}</span>
+                        <div class="request-item-text">
+                            <span class="request-item-name">${req.studentName}</span>
+                            <span class="request-item-message">${req.message}</span>
+                            ${statusBadge}
+                        </div>
                     </div>
+                    <span class="request-item-time">${req.time}</span>
                 </div>
-                <span class="request-item-time">${req.time}</span>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Initial load of request list
     updateStudentRequestList();
+    
+    // Poll for status updates every 1 second
+    setInterval(updateStudentRequestList, 1000);
+}
+
+// Function to update request status
+function updateRequestStatus(requestId, newStatus) {
+    const allRequests = JSON.parse(localStorage.getItem('allStudentRequests') || '[]');
+    // Convert both to strings for comparison
+    const requestIndex = allRequests.findIndex(req => String(req.id) === String(requestId));
+    
+    if (requestIndex !== -1) {
+        allRequests[requestIndex].status = newStatus;
+        localStorage.setItem('allStudentRequests', JSON.stringify(allRequests));
+        return true;
+    }
+    return false;
 }
 
 // Initialize teacher page
 function initTeacherPage() {
     const allRequestsContainer = document.getElementById('all-requests-container');
+    
+    if (!allRequestsContainer) {
+        console.error('all-requests-container not found');
+        return;
+    }
+
+    // Event delegation for action buttons
+    allRequestsContainer.addEventListener('click', (e) => {
+        // Check if clicked element or its parent is an action button
+        let button = e.target.closest('.action-btn');
+        
+        // If clicked on child elements (span), find the parent button
+        if (!button && (e.target.classList.contains('btn-icon') || e.target.classList.contains('btn-text'))) {
+            button = e.target.parentElement;
+        }
+        
+        if (!button || !button.classList.contains('action-btn')) {
+            return;
+        }
+        
+        const requestId = button.getAttribute('data-request-id');
+        const action = button.getAttribute('data-action');
+        
+        if (requestId && action) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (action === 'seen') {
+                updateRequestStatus(requestId, 'seen');
+            } else if (action === 'accept') {
+                updateRequestStatus(requestId, 'accepted');
+            } else if (action === 'reject') {
+                updateRequestStatus(requestId, 'rejected');
+            }
+            // Update display immediately
+            updateDisplay();
+        }
+    });
 
     function updateDisplay() {
         const allRequests = JSON.parse(localStorage.getItem('allStudentRequests') || '[]');
@@ -236,16 +313,62 @@ function initTeacherPage() {
         // Sort by timestamp (newest first)
         const sortedRequests = [...allRequests].sort((a, b) => b.timestamp - a.timestamp);
         
-        allRequestsContainer.innerHTML = sortedRequests.map(req => `
-            <div class="teacher-request-item">
-                <div class="teacher-request-icon">${req.icon}</div>
-                <div class="teacher-request-content">
-                    <div class="teacher-request-name">${req.studentName}</div>
-                    <div class="teacher-request-message">${req.message}</div>
+        allRequestsContainer.innerHTML = sortedRequests.map(req => {
+            let actionButtons = '';
+            
+            if (req.status === 'pending') {
+                if (req.category === 'status') {
+                    // Status type - show tick mark button
+                    actionButtons = `
+                        <button class="action-btn seen-btn" data-request-id="${req.id}" data-action="seen">
+                            <span class="btn-icon">✓</span>
+                            <span class="btn-text">Seen</span>
+                        </button>
+                    `;
+                } else {
+                    // Request type - show accept/reject buttons
+                    actionButtons = `
+                        <button class="action-btn accept-btn" data-request-id="${req.id}" data-action="accept">
+                            <span class="btn-icon">✓</span>
+                            <span class="btn-text">Accept</span>
+                        </button>
+                        <button class="action-btn reject-btn" data-request-id="${req.id}" data-action="reject">
+                            <span class="btn-icon">✗</span>
+                            <span class="btn-text">Reject</span>
+                        </button>
+                    `;
+                }
+            } else {
+                // Show current status
+                let statusText = '';
+                let statusClass = '';
+                if (req.status === 'seen') {
+                    statusText = 'Seen';
+                    statusClass = 'status-seen';
+                } else if (req.status === 'accepted') {
+                    statusText = 'Accepted';
+                    statusClass = 'status-accepted';
+                } else if (req.status === 'rejected') {
+                    statusText = 'Rejected';
+                    statusClass = 'status-rejected';
+                }
+                actionButtons = `<span class="status-indicator ${statusClass}">${statusText}</span>`;
+            }
+            
+            return `
+                <div class="teacher-request-item">
+                    <div class="teacher-request-icon">${req.icon}</div>
+                    <div class="teacher-request-content">
+                        <div class="teacher-request-name">${req.studentName}</div>
+                        <div class="teacher-request-message">${req.message}</div>
+                    </div>
+                    <div class="teacher-request-actions">
+                        ${actionButtons}
+                    </div>
+                    <div class="teacher-request-time">${req.time}</div>
                 </div>
-                <div class="teacher-request-time">${req.time}</div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     // Initial display

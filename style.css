@@ -602,10 +602,117 @@ body {
     color: #666;
 }
 
+.teacher-request-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .teacher-request-time {
     font-size: 13px;
     color: #999;
-    margin-left: auto;
+    min-width: 80px;
+    text-align: right;
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s;
+}
+
+.action-btn .btn-icon {
+    font-size: 16px;
+}
+
+.action-btn .btn-text {
+    font-size: 14px;
+}
+
+.seen-btn {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.seen-btn:hover {
+    background-color: #357abd;
+}
+
+.accept-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.accept-btn:hover {
+    background-color: #45a049;
+}
+
+.reject-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.reject-btn:hover {
+    background-color: #da190b;
+}
+
+.status-indicator {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-indicator.status-seen {
+    background-color: #e3f2fd;
+    color: #1976d2;
+}
+
+.status-indicator.status-accepted {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-indicator.status-rejected {
+    background-color: #ffebee;
+    color: #c62828;
+}
+
+/* Student Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 6px;
+}
+
+.status-badge.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.status-seen {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-badge.status-accepted {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-badge.status-rejected {
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
 .placeholder {
