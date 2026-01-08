@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classroom Connect</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="logo">
+            <span class="logo-icon">🎓</span>
+            <span class="logo-text">Classroom Connect</span>
+        </div>
+        <button class="sign-in-btn">Sign In</button>
+    </header>
+
+    <main class="landing-main">
+        <div class="welcome-section">
+            <h1>Welcome to Classroom Connect</h1>
+            <p class="welcome-text">Streamline your classroom communication. Select your role below to access your personalized dashboard.</p>
+        </div>
+
+        <div class="role-cards">
+            <div class="role-card">
+                <div class="card-image teacher-image">
+                    <div class="placeholder-image">👩‍🏫</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <span class="card-icon">📡</span>
+                        <h2>Teacher</h2>
+                    </div>
+                    <p class="card-description">Create classes, manage students, and broadcast messages instantly.</p>
+                    <button class="card-btn" id="teacher-btn">Enter as Teacher</button>
+                </div>
+            </div>
+
+            <div class="role-card">
+                <div class="card-image student-image">
+                    <div class="placeholder-image">📚</div>
+                </div>
+                <div class="card-content">
+                    <div class="card-header">
+                        <span class="card-icon">🎓</span>
+                        <h2>Student</h2>
+                    </div>
+                    <p class="card-description">Join classes, ask questions non-verbally, and track your progress.</p>
+                    <button class="card-btn" id="student-btn">Enter as Student</button>
+                    <div class="name-input-container" id="name-input-container" style="display: none;">
+                        <input type="text" id="student-name-input" placeholder="Enter your name" class="name-input">
+                        <button class="name-submit-btn" id="name-submit-btn">Continue</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="main-footer">
+        <div class="footer-links">
+            <a href="#">Privacy Policy</a>
+            <a href="#">Support</a>
+            <a href="#">About</a>
+        </div>
+        <p class="copyright">© 2023 Classroom Connect. All rights reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
